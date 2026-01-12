@@ -5,7 +5,8 @@ macOS メニューバーに常駐し、Wi-Fi (en0) の実効通信速度とオ�
 ## 機能
 - メニューバーに 1 秒ごとの上り/下り実効速度を表示
 - メニューから最大速度測定（Cloudflare スピードテストを使用）
-- メニューから `sudo iftop -i en0` を Terminal で起動（sudo パスワード入力が必要）
+- メニューのインターフェース選択で監視対象を切替（en*/utun* 等を列挙）
+- メニューから `sudo iftop -i <選択インターフェース> -N -P -B -m 100M` を Terminal で起動（sudo パスワード入力が必要）
 - Dock 非表示 (`LSUIElement`)
 
 ## 前提

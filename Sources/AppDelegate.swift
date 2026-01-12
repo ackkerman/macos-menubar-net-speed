@@ -4,10 +4,12 @@ import os.log
 import Darwin
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    private let interfaceName = "en0"
+    private var selectedInterface = "en0"
 
     private var statusItem: NSStatusItem!
     private var timer: DispatchSourceTimer?
+    private var interfaceMenu: NSMenu?
+    private var interfaceRootItem: NSMenuItem?
 
     private var lastRx: UInt64 = 0
     private var lastTx: UInt64 = 0
@@ -36,6 +38,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.title = "↓ 0 ↑ 0"
 
         let menu = NSMenu()
+
+        let ifaceRoot = NSMenuItem(title: "Interface: \(selectedInterface)", action: nil, keyEquivalent: "")
+        let ifaceSub = NSMenu()
+        interfaceMenu = ifaceSub
+        interfaceRootItem = ifaceRoot
+        menu.setSubmenu(ifaceSub, for: ifaceRoot)
+        menu.addItem(ifaceRoot)
+        populateInterfacesMenu()
+
         menu.addItem(NSMenuItem(
             title: "Measure Max Speed",
             action: #selector(measureMaxSpeed),
@@ -70,7 +81,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateTraffic() {
         guard maxResult == nil else { return }
 
-        let (rx, tx) = getWiFiBytes(interface: interfaceName)
+        let (rx, tx) = getInterfaceBytes(interface: selectedInterface)
 
         defer {
             lastRx = rx
@@ -171,7 +182,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openNetworkTop() {
         // Create a temporary .command script and open it with Terminal to avoid AppleEvents.
         let scriptPath = "/tmp/menubarnetspeed-iftop.command"
-        let script = "#!/bin/bash\nsudo iftop -i \(interfaceName)\n"
+        let script = "#!/bin/bash\nsudo iftop -i \(selectedInterface) -N -P -B -m 100M\n"
         let fm = FileManager.default
         do {
             try script.write(toFile: scriptPath, atomically: true, encoding: .utf8)
@@ -191,6 +202,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+
+    // MARK: - Interface selection
+
+    private func populateInterfacesMenu() {
+        let interfaces = listNetworkInterfaces()
+        interfaceMenu?.removeAllItems()
+        if interfaces.isEmpty {
+            let item = NSMenuItem(title: "No interfaces", action: nil, keyEquivalent: "")
+            item.isEnabled = false
+            interfaceMenu?.addItem(item)
+            return
+        }
+        for name in interfaces {
+            let item = NSMenuItem(title: name, action: #selector(selectInterface(_:)), keyEquivalent: "")
+            item.target = self
+            item.state = (name == selectedInterface) ? .on : .off
+            interfaceMenu?.addItem(item)
+        }
+    }
+
+    @objc private func selectInterface(_ sender: NSMenuItem) {
+        let name = sender.title
+        selectedInterface = name
+        lastRx = 0
+        lastTx = 0
+        maxResult = nil
+        statusItem.button?.title = "↓ 0 ↑ 0"
+        populateInterfacesMenu()
+        writeDebugLog("Interface selected: \(name)")
+        interfaceRootItem?.title = "Interface: \(name)"
     }
 
     // MARK: - Debug
