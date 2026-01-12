@@ -61,14 +61,14 @@ Max ↓ 320 ↑ 110 Mbps
 
 ### 3. top 形式ネットワーク表示（ボタン操作）
 
-- macOS 標準の `nettop` コマンドを使用
+- `iftop` を使用（sudo 実行; Wi-Fi インターフェース en0 指定）
 - 新しい Terminal ウィンドウを開いて実行
 - GUI 本体は通信に関与しない
 
 実行コマンド例：
 ```
 
-nettop -I en0 -s 1
+sudo iftop -i en0
 
 ```
 

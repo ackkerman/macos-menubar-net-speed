@@ -166,22 +166,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         task.resume()
     }
 
-    // MARK: - nettop
+    // MARK: - Traffic monitor (iftop)
 
     @objc private func openNetworkTop() {
-        // Avoid AppleEvents permission prompts by using `open -a Terminal ...`.
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        process.arguments = [
-            "-a", "Terminal",
-            "/usr/bin/nettop",
-            "--args", "-I", interfaceName, "-s", "1"
-        ]
+        // Create a temporary .command script and open it with Terminal to avoid AppleEvents.
+        let scriptPath = "/tmp/menubarnetspeed-iftop.command"
+        let script = "#!/bin/bash\nsudo iftop -i \(interfaceName)\n"
+        let fm = FileManager.default
         do {
+            try script.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+            try fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-a", "Terminal", scriptPath]
             try process.run()
-            writeDebugLog("Terminal nettop launch requested")
+            writeDebugLog("Terminal iftop launch requested via \(scriptPath)")
         } catch {
-            writeDebugLog("Terminal nettop launch failed: \(error)")
+            writeDebugLog("Terminal iftop launch failed: \(error)")
         }
     }
 

@@ -5,7 +5,7 @@ macOS メニューバーに常駐し、Wi-Fi (en0) の実効通信速度とオ�
 ## 機能
 - メニューバーに 1 秒ごとの上り/下り実効速度を表示
 - メニューから最大速度測定（Cloudflare スピードテストを使用）
-- メニューから `nettop -I en0 -s 1` を Terminal で起動
+- メニューから `sudo iftop -i en0` を Terminal で起動（sudo パスワード入力が必要）
 - Dock 非表示 (`LSUIElement`)
 
 ## 前提
