@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Xcode / Swift build artifacts
+DerivedData/
+*.xcworkspace
+*.xcodeproj
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Logs
+*.log
+
+# Local build output
+build/
