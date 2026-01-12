@@ -20,6 +20,7 @@ $(APP): $(SWIFT_SOURCES) Info.plist Package.swift
 
 install: build
 	@mkdir -p /Applications
+	rm -rf /Applications/$(APP_NAME).app
 	cp -R $(APP) /Applications/$(APP_NAME).app
 
 run: build

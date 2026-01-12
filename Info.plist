@@ -16,6 +16,8 @@
     <string>1.0.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Terminal で nettop を起動するために使用します。</string>
     <key>LSUIElement</key>
     <true/>
     <key>NSPrincipalClass</key>

@@ -3,7 +3,6 @@ import Foundation
 import os.log
 import Darwin
 
-@main
 class AppDelegate: NSObject, NSApplicationDelegate {
     private let interfaceName = "en0"
 
@@ -170,13 +169,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - nettop
 
     @objc private func openNetworkTop() {
-        let script = """
-        tell application \"Terminal\"
-            activate
-            do script \"nettop -I en0 -s 1\"
-        end tell
-        """
-        NSAppleScript(source: script)?.executeAndReturnError(nil)
+        // Avoid AppleEvents permission prompts by using `open -a Terminal ...`.
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = [
+            "-a", "Terminal",
+            "/usr/bin/nettop",
+            "--args", "-I", interfaceName, "-s", "1"
+        ]
+        do {
+            try process.run()
+            writeDebugLog("Terminal nettop launch requested")
+        } catch {
+            writeDebugLog("Terminal nettop launch failed: \(error)")
+        }
     }
 
     // MARK: - Utils
